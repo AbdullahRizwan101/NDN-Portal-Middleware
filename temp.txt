@@ -1,0 +1,3 @@
+root       5392  0.0  0.1  65608  4256 pts/3    S+   13:23   0:00 sudo python /home/ttg/mini-ndn/examples/mnndn.py
+root       5398  3.0  0.2  27636  9384 pts/3    D+   13:23   0:00 python /home/ttg/mini-ndn/examples/mnndn.py
+ttg        5416  0.0  0.0  14432  1124 pts/4    R+   13:23   0:00 grep --color=auto mn
