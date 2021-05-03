@@ -75,12 +75,24 @@ app.post("/topology", (req, res) => {
     angle = angle + 1;
   });
 
+  // adding switches for software defined networking (SDN)
+  // this switch is going to be connected to the a controller c0
+  textFileContent += '[switches]\n';
+  textFileContent += 's1: _\n';
+  switch1 = 's1';
+
+  // adding links/nodes
   textFileContent += "[links]\n";
 
   fetched_data.links.forEach((link) => {
     console.log(link);
-
+    // connecting nodes with each other
     textFileContent += link.source + ":" + link.target + " delay=10ms\n";
+  });
+
+  // conecting all switches with links/nodes
+  fetched_data.links.forEach((link) => {
+    textFileContent += switch1 + ":" + link.
   });
 
   fs.writeFile(
