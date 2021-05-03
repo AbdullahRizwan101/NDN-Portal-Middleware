@@ -1,0 +1,19 @@
+{
+"nodes": [
+      {"id": 1, "name" : "a", "radius" :0.5, "angle" : 2.64159265359},
+      {"id": 2, "name" : "c", "radius" : 0.8, "angle" : 3.64159265359},
+      {"id": 3, "name" : "d", "radius" : 0.4, "angle" : 6.64159265359},
+	{"id": 4, "name" : "e", "radius" : 0.7, "angle" : 7.64159265359},
+	{"id": 5, "name" : "f", "radius" : 0.5, "angle" : 5.64159265359},
+	{"id":6, "name" : "g", "radius" : 0.8, "angle" : 4.64159265359},
+	{"id": 7, "name" : "h", "radius" : 0.6, "angle" : 1.64159265359},
+	{"id": 8, "name" : "i", "radius" : 0.5, "angle" : 9.64159265359}
+    ],
+    "links": [
+        {"source": "a", "target": "b", "delay": "10ms"},
+	{"source": "a", "target": "c", "delay": "10ms"},
+	{"source": "d", "target": "a", "delay": "10ms"},	
+	{"source": "f", "target": "g", "delay": "10ms"},	
+	{"source": "h", "target": "i", "delay": "10ms"}
+           ]
+}
