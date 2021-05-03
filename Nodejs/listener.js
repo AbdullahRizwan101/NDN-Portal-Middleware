@@ -92,7 +92,8 @@ app.post("/topology", (req, res) => {
   // conecting all switche(s) with all nodes
   fetched_data.nodes.forEach((node) => {
     // temp = switch1 + ":" + node.id;
-    textFileContent += switch1 + ":" + node.id + "\n";
+    // delay is important else the topo file throws an error!!!
+    textFileContent += switch1 + ":" + node.id + " delay=10ms\n";
     // console.log(temp);
   });
 
