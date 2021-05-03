@@ -53,55 +53,50 @@ app.post("/topology", (req, res) => {
   console.log(req.body);
 
   fetched_data = req.body;
-
   console.log(`Fetched Data is :${fetched_data}`);
 
   let textFileContent = "";
-
-  textFileContent += "[nodes]\n";
-
   let radius = 0.1;
-
   let angle = 2;
 
+  // nodes section, define all nodes of the network
+  textFileContent += "[nodes]\n";
+
+  console.log("All Nodes");
+  // adding all nodes from the fetched data 
   fetched_data.nodes.forEach((node) => {
     console.log(node);
-
-    textFileContent +=
-      node.id + ": _ " + "radius=" + radius + " angle=" + angle + "\n";
-
+    textFileContent += node.id + ": _ " + "radius=" + radius + " angle=" + angle + "\n";
     radius = radius + 0.1;
-
     angle = angle + 1;
   });
 
-  // adding switches for software defined networking (SDN)
+  // switches section, switche(s) for software defined networking (SDN)
   // this switch is going to be connected to the a controller c0
   textFileContent += '[switches]\n';
   textFileContent += 's1: _\n';
   switch1 = 's1';
 
-  // adding links/nodes
+  // links section, constructing the network
   textFileContent += "[links]\n";
-
   fetched_data.links.forEach((link) => {
     console.log(link);
     // connecting nodes with each other
     textFileContent += link.source + ":" + link.target + " delay=10ms\n";
   });
 
-  // conecting all switches with links/nodes
-  fetched_data.links.forEach((link) => {
-    textFileContent += switch1 + ":" + link.
+  // conecting all switche(s) with all nodes
+  fetched_data.nodes.forEach((node) => {
+    // temp = switch1 + ":" + node.id;
+    textFileContent += switch1 + ":" + node.id + "\n";
+    // console.log(temp);
   });
 
+  // writting the to configuration file
   fs.writeFile(
     "topo.conf",
-
     textFileContent,
-
     { encoding: "ascii" },
-
     function (err) {
       if (err) {
         return console.log(err);
