@@ -9,11 +9,16 @@ const app = express();
 
 const port = 3001;
 
+// users file
+const user = require("./users");
+
 let fetched_data = "";
 
 app.use(cors(), express.json(), express.static("build"));
 
-const persons = [{ username: "yumna", password: "123" }];
+// read file containing users, and parse it as a json object
+const persons = JSON.parse(fs.readFileSync('users.json'))
+console.log(persons)
 
 // Hosting minindn configuration file
 
@@ -25,7 +30,6 @@ app.get("/file", (req, res) => {
 
 app.post("/persons", (request, response) => {
   const username = request.body.username;
-
   const password = request.body.password;
 
   console.log(username, password);
@@ -88,7 +92,8 @@ app.post("/topology", (req, res) => {
   // conecting all switche(s) with all nodes
   fetched_data.nodes.forEach((node) => {
     // temp = switch1 + ":" + node.id;
-    textFileContent += switch1 + ":" + node.id + "\n";
+    // delay is important else the topo file throws an error!!!
+    textFileContent += switch1 + ":" + node.id + " delay=10ms\n";
     // console.log(temp);
   });
 
