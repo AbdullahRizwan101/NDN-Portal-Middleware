@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# read -p "Enter your command: " command
-pass=$1
+# Get the sudo password to be used later on
+read -p "Enter password: " pass
 
+# Kill any process running on port 6500 just in case 
 echo $pass | sudo -S fuser -k 6500/tcp
 
 xterm -e curl http://localhost:3001/file --output downloadTopo.py
