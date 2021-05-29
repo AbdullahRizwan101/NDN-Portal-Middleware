@@ -1,9 +1,9 @@
-const { Socket } = require("dgram");
-
+require("dotenv").config();
 const express = require("express"),
   cors = require("cors"),
   fs = require("fs"),
-  net = require("net");
+  net = require("net"),
+  { exec } = require("child_process");
 
 const app = express();
 
@@ -17,8 +17,8 @@ let fetched_data = "";
 app.use(cors(), express.json(), express.static("build"));
 
 // read file containing users, and parse it as a json object
-const persons = JSON.parse(fs.readFileSync('users.json'))
-console.log(persons)
+const persons = JSON.parse(fs.readFileSync("users.json"));
+console.log(persons);
 
 // Hosting minindn configuration file
 
@@ -67,19 +67,20 @@ app.post("/topology", (req, res) => {
   textFileContent += "[nodes]\n";
 
   console.log("All Nodes");
-  // adding all nodes from the fetched data 
+  // adding all nodes from the fetched data
   fetched_data.nodes.forEach((node) => {
     console.log(node);
-    textFileContent += node.id + ": _ " + "radius=" + radius + " angle=" + angle + "\n";
+    textFileContent +=
+      node.id + ": _ " + "radius=" + radius + " angle=" + angle + "\n";
     radius = radius + 0.1;
     angle = angle + 1;
   });
 
   // switches section, switche(s) for software defined networking (SDN)
   // this switch is going to be connected to the a controller c0
-  textFileContent += '[switches]\n';
-  textFileContent += 's1: _\n';
-  switch1 = 's1';
+  textFileContent += "[switches]\n";
+  textFileContent += "s1: _\n";
+  switch1 = "s1";
 
   // links section, constructing the network
   textFileContent += "[links]\n";
@@ -109,6 +110,17 @@ app.post("/topology", (req, res) => {
     }
   );
 
+  exec(`./test.sh ${process.env.SUDO_PASS}`, (error, stdout, stderr) => {
+    if (error) {
+      console.log(`error: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.log(`stderr: ${stderr}`);
+      return;
+    }
+    console.log(`stdout: ${stdout}`);
+  });
   res.sendStatus(200);
 });
 
@@ -132,9 +144,8 @@ app.post("/command", (req, res) => {
   });
 
   client.on("data", (data) => {
-    console.log(`Received: ${data}`);
-
     client.end();
+    console.log("Connection Closed!");
 
     res.send(data);
   });
