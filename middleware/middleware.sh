@@ -2,6 +2,7 @@
 
 # Get the sudo password to be used later on
 pass=$1
+echo $pass
 
 # Kill any process running on port 6500 just in case
 echo $pass | sudo -S kill $(echo $pass | sudo -S lsof -t -i:6500)
@@ -47,7 +48,7 @@ done < $filename
 read -a array <<< "$data"
 echo "Mininet PID: ${array[1]}"
 
-# echo $pass | sudo -S ./ttyecho -n $outputPTS "echo $pass | sudo -S strace -p ${array[1]} -e write -s 9999 -o ~/Desktop/PortListener/output.txt" &
+# echo $pass | sudo -S strace -p ${array[1]} -e write -s 9999 -o ~/output.txt &
 
 # Open another terminal so that we can run listening server on that
 xterm -e "tty > tty.txt; bash" &
@@ -58,4 +59,4 @@ serverPTS=$( cat tty.txt )
 echo serverPID = $serverPID , serverPTS = $serverPTS
 
 # Run the server that listens for command on the newly opened terminal
-echo $pass | sudo -S ./ttyecho -n $serverPTS "python3 ./server.py $mininetPTS ${array[1]}"
+echo $pass | sudo -S ./ttyecho -n $serverPTS "python3 ./server.py $mininetPTS ${array[1]} $pass"

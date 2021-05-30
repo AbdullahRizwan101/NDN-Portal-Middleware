@@ -9,6 +9,10 @@ import subprocess
 HOST = '127.0.0.1'
 PORT = 6500
 
+# Attach a process on the mini-ndn that will log the output to ~/output.txt file
+p = subprocess.Popen("echo {} | sudo -S strace -p {} -e write -s 9999 -o ~/output.txt &".format(sys.argv[3], sys.argv[2]), shell=True)
+time.sleep(2)
+
 # We are passing 2 arguments in socket.socket() function to create a socket object
 # 1. Address Family, that is internet protocol we are using such as IPv4 or IPv6
 #   AF_INET stands for (AddressFamily_InterNET) and is IPv4 where as AF_INET6 is IPv6
@@ -26,8 +30,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         # listen() enables a server to accept() connections.
         s.listen()
 
-
-
         # accept() blocks and waits for an incoming connection. When a client connects, 
         # it returns a new socket object representing the connection and a tuple holding 
         # the address of the client. The tuple will contain (host, port) for IPv4 connections.
@@ -36,7 +38,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         # from accept(). This is important since it’s the socket that we will use to 
         # communicate with the client.
         conn, addr = s.accept()
-
+            
         with conn:
             print("connected by: ", addr)
 
@@ -46,55 +48,50 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
             # If conn.recv() returns an empty bytes object, b'', then the client closed 
             # the connection and the loop is terminated.
-            url = "http://localhost:3001/output"
-            headers = {"Content-type" : "application/json"}
+            # url = "http://localhost:3001/output"
+            # headers = {"Content-type" : "application/json"}
 
             data = conn.recv(1024)
             cmd = str(data, 'ascii')
-            if(cmd == ""):
-                continue
+
+            print("Command: ", cmd)
+            
+            subprocess.run("echo {} | sudo -S ./ttyecho -n {} '{}'".format(sys.argv[3], sys.argv[1], cmd), shell=True)
+            # p.terminate()
+            # p.wait()
+
+            if(cmd == "iperf"):
+                time.sleep(10)
             else:
-                print("Command: ", cmd)
-                p = subprocess.Popen("echo Tameem123 | sudo -S strace -p {} -e write -s 9999 -o ~/output.txt &".format(sys.argv[2]), shell=True)
-                time.sleep(2)
-                subprocess.run("echo Tameem123 | sudo -S ./ttyecho -n {} '{}'".format(sys.argv[1], cmd), shell=True)
-                # p.terminate()
-                # p.wait()
+                time.sleep(5)
+            file = open("/home/ttg/output.txt", "r+")
 
-                if(cmd == "iperf"):
-                    time.sleep(10)
-                else:
-                    time.sleep(5)
-                file = open("/home/ttg/output.txt", "r+")
+            line = file.readline()
+            output = []
 
+            while line != "":
+                y = re.search("write\(2, \".*\", [0-9]+\)[ ]*=[ ]*[0-9]+\n", line)
+                x = re.search("\".*\"", line)
+                if y != None:
+                    if x.group() == '"mini-ndn> "':
+                        break
+                    elif x.group() == '"\\n"':
+                        line = file.readline()
+                        output.append("\n")
+                        continue
+                    elif x.group() == '"\\r"':
+                        line = file.readline()
+                        output.append("\r")
+                        continue
+                    else:
+                        txt = x.group()
+                        txt = txt.replace("\\n", "\n")
+                        txt = txt.replace("\\r", "\r")
+                        output.append(txt)
                 line = file.readline()
-                output = []
 
-                while line != "":
-                    y = re.search("write\(2, \".*\", [0-9]+\)[ ]*=[ ]*[0-9]+\n", line)
-                    x = re.search("\".*\"", line)
-                    if y != None:
-                        if x.group() == '"mini-ndn> "':
-                            break
-                        elif x.group() == '"\\n"':
-                            line = file.readline()
-                            output.append("\n")
-                            continue
-                        elif x.group() == '"\\r"':
-                            line = file.readline()
-                            output.append("\r")
-                            continue
-                        else:
-                            txt = x.group()
-                            txt = txt.replace("\\n", "\n")
-                            txt = txt.replace("\\r", "\r")
-                            output.append(txt)
-                    line = file.readline()
-
-                payload = {"output": "".join(output)}
-                res = requests.post(url, data= simplejson.dumps(payload), headers=headers)
-                conn.sendall(bytes("".join(output), 'ascii'))
-                file.truncate(0)
-                file.close()
-        
-        conn.close()
+            # payload = {"output": "".join(output)}
+            # res = requests.post(url, data= simplejson.dumps(payload), headers=headers)
+            conn.sendall(bytes("".join(output), 'ascii'))
+            file.truncate(0)
+            file.close()

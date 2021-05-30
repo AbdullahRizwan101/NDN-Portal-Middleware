@@ -1,3 +1,3 @@
-root       8648  0.3  0.1  65608  4380 pts/1    S+   02:00   0:00 sudo python /home/ttg/mini-ndn/examples/mnndn.py downloadTopo.conf
-root       8652  4.6  0.3  54612 14300 pts/1    S+   02:00   0:00 python /home/ttg/mini-ndn/examples/mnndn.py downloadTopo.conf
-ttg        8830  0.0  0.0  14432  1068 pts/2    S+   02:00   0:00 grep --color=auto mnndn
+root     15124  0.3  0.0  66180  4320 pts/9    S+   02:39   0:00 sudo python /home/ttg/mini-ndn/examples/mnndn.py downloadTopo.conf
+root     15130  3.3  0.1  52200 15516 pts/9    S+   02:39   0:00 python /home/ttg/mini-ndn/examples/mnndn.py downloadTopo.conf
+ttg      15264  0.0  0.0  14760  1096 pts/12   R+   02:39   0:00 grep --color=auto mnndn

@@ -109,6 +109,24 @@ app.post("/topology", (req, res) => {
       }
     }
   );
+
+  console.log("Starting NDN stack!");
+  exec(
+    `./middleware.sh ${process.env.SUDO_PASS}`,
+    { cwd: "./middleware/" },
+    (error, stdout, stderr) => {
+      if (error) {
+        console.log(`error: ${error.message}`);
+        return;
+      }
+      if (stderr) {
+        console.log(`stderr: ${stderr}`);
+        return;
+      }
+      console.log(`stdout: ${stdout}`);
+    }
+  );
+
   res.sendStatus(200);
 });
 

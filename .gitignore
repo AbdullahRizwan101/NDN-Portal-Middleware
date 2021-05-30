@@ -1,2 +1,9 @@
 node_modules
 .env
+middleware/client.py
+middleware/downloadTopo.conf
+middleware/mininetPID.txt
+middleware/outputPID.txt
+middleware/serverPID.txt
+middleware/temp.txt
+middleware/tty.txt
