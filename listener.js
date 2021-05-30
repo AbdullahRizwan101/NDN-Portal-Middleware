@@ -140,34 +140,42 @@ app.post("/command", (req, res) => {
 });
 
 app.get("/start", (req, res) => {
-	console.log("Starting NDN stack!");
-	exec(`./test.sh ${process.env.SUDO_PASS}`, (error, stdout, stderr) => {
-    if (error) {
-      console.log(`error: ${error.message}`);
-      return;
+  console.log("Starting NDN stack!");
+  exec(
+    `./middleware.sh ${process.env.SUDO_PASS}`,
+    { cwd: "./middleware/" },
+    (error, stdout, stderr) => {
+      if (error) {
+        console.log(`error: ${error.message}`);
+        return;
+      }
+      if (stderr) {
+        console.log(`stderr: ${stderr}`);
+        return;
+      }
+      console.log(`stdout: ${stdout}`);
     }
-    if (stderr) {
-      console.log(`stderr: ${stderr}`);
-      return;
-    }
-    console.log(`stdout: ${stdout}`);
-  });
-})
+  );
+});
 
 app.get("/stop", (req, res) => {
-	console.log("Stopping NDN stack!");
-	exec(`ls`, (error, stdout, stderr) => {
-    if (error) {
-      console.log(`error: ${error.message}`);
-      return;
+  console.log("Stopping NDN stack!");
+  exec(
+    `./killStack.sh ${process.env.SUDO_PASS}`,
+    { cwd: "./middleware/" },
+    (error, stdout, stderr) => {
+      if (error) {
+        console.log(`error: ${error.message}`);
+        return;
+      }
+      if (stderr) {
+        console.log(`stderr: ${stderr}`);
+        return;
+      }
+      console.log(`stdout: ${stdout}`);
     }
-    if (stderr) {
-      console.log(`stderr: ${stderr}`);
-      return;
-    }
-    console.log(`stdout: ${stdout}`);
-  });
-})
+  );
+});
 
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);

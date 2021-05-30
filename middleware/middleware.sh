@@ -11,6 +11,7 @@ xterm -e curl http://localhost:3001/file --output downloadTopo.conf
 # Open a terminal so that we can run mini-ndn/mininet on it
 xterm -e "tty > tty.txt; bash" &
 termPID=$!
+echo $termPID > mininetPID.txt
 sleep 3
 mininetPTS=$( cat tty.txt )
 echo termPID = $termPID , mininetPTS = $mininetPTS
@@ -23,12 +24,13 @@ echo $pass | sudo -S ./ttyecho -n $mininetPTS "$pass"
 # Open a terminal that we will use to listen to the output of commands
 xterm -e "tty > tty.txt; bash" &
 outputPID=$!
+echo $outputPID > outputPID.txt
 sleep 3
 outputPTS=$( cat tty.txt )
 echo outputPID = $outputPID , outputPTS = $outputPTS
 
 # Get PID of mini-ndn/mininet to listen to its output
-echo $pass | sudo -S ./ttyecho -n $outputPTS "ps aux | grep 'mnndn' > temp.txt" &
+echo $pass | sudo -S ./ttyecho -n $outputPTS "ps aux | grep 'mnndn' > temp.txt" 
 
 sleep 3
 
@@ -50,9 +52,10 @@ echo "Mininet PID: ${array[1]}"
 # Open another terminal so that we can run listening server on that
 xterm -e "tty > tty.txt; bash" &
 serverPID=$!
+echo $serverPID > serverPID.txt
 sleep 3
 serverPTS=$( cat tty.txt )
 echo serverPID = $serverPID , serverPTS = $serverPTS
 
 # Run the server that listens for command on the newly opened terminal
-echo $pass | sudo -S ./ttyecho -n $serverPTS "python3 ./server2.py $mininetPTS ${array[1]}"
+echo $pass | sudo -S ./ttyecho -n $serverPTS "python3 ./server.py $mininetPTS ${array[1]}"
