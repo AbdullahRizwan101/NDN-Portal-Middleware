@@ -51,8 +51,33 @@ app.post("/persons", (request, response) => {
   }
 });
 
-// Getting information of nodes from frontend
+// signing up a new user
+app.post("/signup", (req, res) => {
+  const newUsername = req.body.username;
+  const newPassword = req.body.password;
 
+  console.log("New User: " + newUsername);
+  console.log("New Password: " + newPassword);
+
+  let newUser = { username: newUsername, password: newPassword };
+  persons.push(newUser);
+  console.log(persons);
+
+  // write new json array to a file
+  fs.writeFile(
+    "users.json",
+    JSON.stringify(persons),
+    { encoding: "ascii" },
+    function (err) {
+      if (err) {
+        return console.log(err);
+      }
+    }
+  );
+
+});
+
+// Getting information of nodes from frontend
 app.post("/topology", (req, res) => {
   console.log(req.body);
 
