@@ -59,21 +59,37 @@ app.post("/signup", (req, res) => {
   console.log("New User: " + newUsername);
   console.log("New Password: " + newPassword);
 
-  let newUser = { username: newUsername, password: newPassword };
-  persons.push(newUser);
-  console.log(persons);
-
-  // write new json array to a file
-  fs.writeFile(
-    "users.json",
-    JSON.stringify(persons),
-    { encoding: "ascii" },
-    function (err) {
-      if (err) {
-        return console.log(err);
-      }
-    }
+  // find duplicate users having same username
+  const duplicate = persons.filter(
+    (p) => p.username === newUsername
   );
+  console.log(duplicate)
+
+  if (duplicate.length > 0) {
+    console.log("Duplicates Found!")
+    res.status(204).json({
+      success: false,
+    });
+
+    console.log(persons)
+  } else { // there were no duplicates
+
+    let newUser = { username: newUsername, password: newPassword };
+    persons.push(newUser);
+    console.log(persons);
+
+    // write new json array to a file
+    fs.writeFile(
+      "users.json",
+      JSON.stringify(persons),
+      { encoding: "ascii" },
+      function (err) {
+        if (err) {
+          return console.log(err);
+        }
+      }
+    );
+  }
 
 });
 
