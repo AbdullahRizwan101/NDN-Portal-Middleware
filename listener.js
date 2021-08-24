@@ -51,8 +51,49 @@ app.post("/persons", (request, response) => {
   }
 });
 
-// Getting information of nodes from frontend
+// signing up a new user
+app.post("/signup", (req, res) => {
+  const newUsername = req.body.username;
+  const newPassword = req.body.password;
 
+  console.log("New User: " + newUsername);
+  console.log("New Password: " + newPassword);
+
+  // find duplicate users having same username
+  const duplicate = persons.filter(
+    (p) => p.username === newUsername
+  );
+  console.log(duplicate)
+
+  if (duplicate.length > 0) {
+    console.log("Duplicates Found!")
+    res.status(204).json({
+      success: false,
+    });
+
+    console.log(persons)
+  } else { // there were no duplicates
+
+    let newUser = { username: newUsername, password: newPassword };
+    persons.push(newUser);
+    console.log(persons);
+
+    // write new json array to a file
+    fs.writeFile(
+      "users.json",
+      JSON.stringify(persons),
+      { encoding: "ascii" },
+      function (err) {
+        if (err) {
+          return console.log(err);
+        }
+      }
+    );
+  }
+
+});
+
+// Getting information of nodes from frontend
 app.post("/topology", (req, res) => {
   console.log(req.body);
 
@@ -76,12 +117,6 @@ app.post("/topology", (req, res) => {
     angle = angle + 1;
   });
 
-  // switches section, switche(s) for software defined networking (SDN)
-  // this switch is going to be connected to the a controller c0
-  textFileContent += "[switches]\n";
-  textFileContent += "s1: _\n";
-  switch1 = "s1";
-
   // links section, constructing the network
   textFileContent += "[links]\n";
   fetched_data.links.forEach((link) => {
@@ -90,13 +125,21 @@ app.post("/topology", (req, res) => {
     textFileContent += link.source + ":" + link.target + " delay=10ms\n";
   });
 
-  // conecting all switche(s) with all nodes
-  fetched_data.nodes.forEach((node) => {
-    // temp = switch1 + ":" + node.id;
-    // delay is important else the topo file throws an error!!!
-    textFileContent += switch1 + ":" + node.id + " delay=10ms\n";
-    // console.log(temp);
-  });
+  /* remove switch part as not needed for sdn now */
+
+  // // switches section, switche(s) for software defined networking (SDN)
+  // // this switch is going to be connected to the a controller c0
+  // textFileContent += "[switches]\n";
+  // textFileContent += "s1: _\n";
+  // switch1 = "s1";
+
+  // // conecting all switche(s) with all nodes
+  // fetched_data.nodes.forEach((node) => {
+  //   // temp = switch1 + ":" + node.id;
+  //   // delay is important else the topo file throws an error!!!
+  //   textFileContent += switch1 + ":" + node.id + " delay=10ms\n";
+  //   // console.log(temp);
+  // });
 
   // writting the to configuration file
   fs.writeFile(
