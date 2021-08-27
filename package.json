@@ -4,15 +4,20 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "start": "nodemon listener.js",
+    "fr": "npm start --prefix ../frontend",
+    "dev": "concurrently \"npm start\" \"npm run fr\""
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "concurrently": "^6.2.1",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
-    "nodemon": "^2.0.7",
+    "nodemon": "^2.0.12",
+    "react-dom": "^16.13.1",
     "shelljs": "^0.8.4"
   },
   "devDependencies": {
