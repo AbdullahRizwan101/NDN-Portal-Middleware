@@ -1,27 +1,24 @@
 require("dotenv").config();
 const express = require("express"),
   cors = require("cors"),
+  fileUpload = require("express-fileupload"),
+  user = require('./users'),
   fs = require("fs"),
   net = require("net"),
   { exec } = require("child_process");
 
+
 const app = express();
-
-const port = 3001;
-
-// users file
-const user = require("./users");
-
-let fetched_data = "";
-
 app.use(cors(), express.json(), express.static("build"));
+app.use(fileUpload());
+const port = 3001;
+let fetched_data = "";
 
 // read file containing users, and parse it as a json object
 const persons = JSON.parse(fs.readFileSync("users.json"));
 console.log(persons);
 
 // Hosting minindn configuration file
-
 app.get("/file", (req, res) => {
   console.log("Sending file...");
 
@@ -91,6 +88,42 @@ app.post("/signup", (req, res) => {
     );
   }
 
+});
+
+// Upload Endpoint
+app.post("/upload", (req, res) => {
+  console.log("fhjdf");
+  if (req.files === null) {
+    return res.status(400).json({ msg: "No file uploaded" });
+  }
+
+  const file = req.files.file;
+
+  file.mv(`${__dirname}/uploads/${file.name}`, (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send(err);
+    }
+
+    res.json({ fileName: file.name, filePath: `/uploads/${file.name}` });
+  });
+
+  const f = `uploads/${file.name}`
+  exec(
+    `python3 ctopo.py --file ${f}`,
+    { cwd: "./" },
+    (error, stdout, stderr) => {
+      if (error) {
+        console.log(`error: ${error.message}`);
+        return;
+      }
+      if (stderr) {
+        console.log(`stderr: ${stderr}`);
+        return;
+      }
+      console.log(`stdout: ${stdout}`);
+    }
+  );
 });
 
 // Getting information of nodes from frontend
