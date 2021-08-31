@@ -1,27 +1,24 @@
 require("dotenv").config();
 const express = require("express"),
   cors = require("cors"),
+  fileUpload = require("express-fileupload"),
+  user = require('./users'),
   fs = require("fs"),
   net = require("net"),
   { exec } = require("child_process");
 
+
 const app = express();
-
-const port = 3001;
-
-// users file
-const user = require("./users");
-
-let fetched_data = "";
-
 app.use(cors(), express.json(), express.static("build"));
+app.use(fileUpload());
+const port = 3001;
+let fetched_data = "";
 
 // read file containing users, and parse it as a json object
 const persons = JSON.parse(fs.readFileSync("users.json"));
 console.log(persons);
 
 // Hosting minindn configuration file
-
 app.get("/file", (req, res) => {
   console.log("Sending file...");
 
@@ -91,6 +88,52 @@ app.post("/signup", (req, res) => {
     );
   }
 
+});
+
+// Upload Endpoint
+app.post("/upload", (req, res) => {
+  if (req.files === null) {
+    return res.status(400).json({ msg: "No file uploaded" });
+  }
+
+  // file from /upload
+  const file = req.files.file;
+  // extract files extension
+  const ext = (file.name).split('.').pop();
+  console.log(ext);
+  // if the extension is not a conf file
+  if (!(ext === "conf")) {
+    res.status(422).json({ msg: "Invalid File, Upload Configuration File"}).send();
+    return;
+  }
+  
+  // move to backend/uploads/
+  file.mv(`${__dirname}/uploads/${file.name}`, (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send(err);
+    }
+    // sending response from server to react
+    res.json({ fileName: file.name, filePath: `/uploads/${file.name}` });
+  });
+
+  const f = `uploads/${file.name}`
+  // run topo-generator from .conf files
+  exec(
+    `python3 ctopo.py --file ${f}`,
+    { cwd: "./" },
+    (error, stdout, stderr) => {
+      if (error) {
+        console.log(`error: ${error.message}`);
+        return;
+      }
+      if (stderr) {
+        console.log(`stderr: ${stderr}`);
+        return;
+      }
+      console.log(`stdout: ${stdout}`);
+    }
+  );
 });
 
 // Getting information of nodes from frontend
