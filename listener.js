@@ -92,23 +92,33 @@ app.post("/signup", (req, res) => {
 
 // Upload Endpoint
 app.post("/upload", (req, res) => {
-  console.log("fhjdf");
   if (req.files === null) {
     return res.status(400).json({ msg: "No file uploaded" });
   }
 
+  // file from /upload
   const file = req.files.file;
-
+  // extract files extension
+  const ext = (file.name).split('.').pop();
+  console.log(ext);
+  // if the extension is not a conf file
+  if (!(ext === "conf")) {
+    res.status(422).json({ msg: "Invalid File, Upload Configuration File"}).send();
+    return;
+  }
+  
+  // move to backend/uploads/
   file.mv(`${__dirname}/uploads/${file.name}`, (err) => {
     if (err) {
       console.error(err);
       return res.status(500).send(err);
     }
-
+    // sending response from server to react
     res.json({ fileName: file.name, filePath: `/uploads/${file.name}` });
   });
 
   const f = `uploads/${file.name}`
+  // run topo-generator from .conf files
   exec(
     `python3 ctopo.py --file ${f}`,
     { cwd: "./" },
