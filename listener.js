@@ -2,11 +2,10 @@ require("dotenv").config();
 const express = require("express"),
   cors = require("cors"),
   fileUpload = require("express-fileupload"),
-  user = require('./users'),
+  user = require("./users"),
   fs = require("fs"),
   net = require("net"),
   { exec } = require("child_process");
-
 
 const app = express();
 app.use(cors(), express.json(), express.static("build"));
@@ -57,19 +56,18 @@ app.post("/signup", (req, res) => {
   console.log("New Password: " + newPassword);
 
   // find duplicate users having same username
-  const duplicate = persons.filter(
-    (p) => p.username === newUsername
-  );
-  console.log(duplicate)
+  const duplicate = persons.filter((p) => p.username === newUsername);
+  console.log(duplicate);
 
   if (duplicate.length > 0) {
-    console.log("Duplicates Found!")
+    console.log("Duplicates Found!");
     res.status(204).json({
       success: false,
     });
 
-    console.log(persons)
-  } else { // there were no duplicates
+    console.log(persons);
+  } else {
+    // there were no duplicates
 
     let newUser = { username: newUsername, password: newPassword };
     persons.push(newUser);
@@ -87,7 +85,6 @@ app.post("/signup", (req, res) => {
       }
     );
   }
-
 });
 
 // Upload Endpoint
@@ -99,14 +96,17 @@ app.post("/upload", (req, res) => {
   // file from /upload
   const file = req.files.file;
   // extract files extension
-  const ext = (file.name).split('.').pop();
+  const ext = file.name.split(".").pop();
   console.log(ext);
   // if the extension is not a conf file
   if (!(ext === "conf")) {
-    res.status(422).json({ msg: "Invalid File, Upload Configuration File"}).send();
+    res
+      .status(422)
+      .json({ msg: "Invalid File, Upload Configuration File" })
+      .send();
     return;
   }
-  
+
   // move to backend/uploads/
   file.mv(`${__dirname}/uploads/${file.name}`, (err) => {
     if (err) {
@@ -117,7 +117,7 @@ app.post("/upload", (req, res) => {
     res.json({ fileName: file.name, filePath: `/uploads/${file.name}` });
   });
 
-  const f = `uploads/${file.name}`
+  const f = `uploads/${file.name}`;
   // run topo-generator from .conf files
   exec(
     `python3 ctopo.py --file ${f}`,
@@ -228,6 +228,7 @@ app.post("/command", (req, res) => {
   console.log(`Command: ${command}`);
 
   const client = new net.Socket();
+  let output_received = 0;
 
   client.connect(6500, "127.0.0.1", () => {
     console.log("Connected");
@@ -236,11 +237,19 @@ app.post("/command", (req, res) => {
   });
 
   client.on("data", (data) => {
+    output_received = 1;
     client.end();
     console.log("Connection Closed!");
 
     res.send(data);
   });
+
+  setTimeout(() => {
+    if (output_received === 0) {
+      client.end();
+      res.send("Server timed out!");
+    }
+  }, 10000);
 });
 
 app.get("/start", (req, res) => {
