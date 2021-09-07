@@ -84,6 +84,9 @@ app.post("/signup", (req, res) => {
         }
       }
     );
+    res.status(200).json({
+      success: true,
+    });
   }
 });
 
@@ -114,7 +117,9 @@ app.post("/upload", (req, res) => {
       return res.status(500).send(err);
     }
     // sending response from server to react
-    res.json({ fileName: file.name, filePath: `/uploads/${file.name}` });
+    setTimeout(() => {
+      res.json({ fileName: file.name, filePath: `/uploads/${file.name}` });
+    }, 2000);
   });
 
   const f = `uploads/${file.name}`;
