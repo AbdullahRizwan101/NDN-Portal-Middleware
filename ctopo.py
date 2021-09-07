@@ -114,6 +114,6 @@ linkStr = linkStr + ' '.join(allLinks) + "]"
 topo = "const customData = " + "[{" + nodeStr + linkStr + "}];\nexport default customData;"
 print(topo)
 
-with open("../frontend/src/custom-topology/data.js", 'w') as f:
+with open("../NDN-Portal-Frontend/src/custom-topology/data.js", 'w') as f:
     f.writelines(topo)
 

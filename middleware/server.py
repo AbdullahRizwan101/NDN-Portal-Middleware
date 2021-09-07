@@ -5,6 +5,7 @@ import socket
 import requests
 import simplejson
 import subprocess
+import getpass
 
 HOST = '127.0.0.1'
 PORT = 6500
@@ -64,7 +65,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 time.sleep(10)
             else:
                 time.sleep(5)
-            file = open("/home/ttg/output.txt", "r+")
+            # getting username for the current box
+            username = getpass.getuser()
+            file = open(f"/home/{username}/output.txt", "r+")
 
             line = file.readline()
             output = []
